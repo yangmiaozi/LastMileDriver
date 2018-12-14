@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "531429387897",
+    "firebase_url": "https://lastmile-e21ff.firebaseio.com",
+    "project_id": "lastmile-e21ff",
+    "storage_bucket": "lastmile-e21ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531429387897:android:578d9fc002d096bb",
+        "android_client_info": {
+          "package_name": "sg.edu.smu.lastmiledriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "531429387897-4gs9n64brdbedl5fn2f4cgt5ap14oimu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEZzVH-JYxbZSoiavmI7RNZ_VAc6hKKl8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

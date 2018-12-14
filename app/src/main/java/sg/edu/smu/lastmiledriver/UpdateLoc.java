@@ -1,6 +1,7 @@
 package sg.edu.smu.lastmiledriver;
 
 import android.os.AsyncTask;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -15,16 +16,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 /**
- * Created by Miaozi on 8/11/18.
+ * Created by Miaozi on 9/12/18.
  */
 
-public class PerformBackgroundTask extends AsyncTask<String,Void,String> {
-    private String toReturn;
+public class UpdateLoc extends AsyncTask<String,Void,String> {
     private String url = "";
 
     public AsyncResponse delegate = null;
 
-    public PerformBackgroundTask(AsyncResponse delegate, String url) {
+    public UpdateLoc(AsyncResponse delegate, String url) {
         this.delegate = delegate;
         this.url = url;
     }
@@ -33,7 +33,6 @@ public class PerformBackgroundTask extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
         String result_url = "http://35.247.175.250:8080/last-mile-app/drivers/" + url;
         String post_data;
-        toReturn = params[0];
         try {
             URL url = new URL(result_url);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -42,7 +41,7 @@ public class PerformBackgroundTask extends AsyncTask<String,Void,String> {
             huc.setDoOutput(true);
             OutputStream ops = huc.getOutputStream();
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ops, "UTF-8"));
-            post_data = URLEncoder.encode("toReturn", "UTF-8") + "=" + URLEncoder.encode(toReturn, "UTF-8");
+            post_data = "";
             bw.write(post_data);
             bw.flush();
             bw.close();
