@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Last Mile Driver</string>
     <string name="google_maps_key">638119294287-uqsin1l5th2tt2rmhvkpupdt6ro8mhai.apps.googleusercontent.com</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

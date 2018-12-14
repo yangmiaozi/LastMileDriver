@@ -2,6 +2,7 @@ package sg.edu.smu.lastmiledriver;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -101,20 +102,7 @@ public class MainActivity extends AppCompatActivity {
         pn.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 plateNum = "" + pn.getText();
-                if (plateNum.equals("SBS997A") || plateNum.equals("SBS899B") || plateNum.equals("SBS888A")){
-                    stationT = "Dhoby Ghaut";
-                    stationID.setText("1");
-                } else if (plateNum.equals("SBS895B") || plateNum.equals("SBS896B") || plateNum.equals("SBS889A")){
-                    stationT = "Expo";
-                    stationID.setText("2");
-                } else if (plateNum.equals("SBS998A") || plateNum.equals("SBS898B")){
-                    stationT = "Jurong East";
-                    stationID.setText("3");
-                } else if (plateNum.equals("SBS999A") || plateNum.equals("SBS897B")){
-                    stationT = "Boon Keng";
-                    stationID.setText("4");
-                }
-                station.setText(stationT);
+                setSth(plateNum);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -124,6 +112,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Intent intent = getIntent();
+        if (intent.getStringExtra("num") != null) {
+            plateNum = intent.getStringExtra("num");
+            pn.setText(plateNum);
+            setSth(plateNum);
+        }
+
         node.setText("");
         con.setText("");
 
@@ -132,6 +127,23 @@ public class MainActivity extends AppCompatActivity {
         button.setVisibility(View.INVISIBLE);
 
         getNodes();
+    }
+
+    public void setSth(String plateNum){
+        if (plateNum.equals("SBS997A") || plateNum.equals("SBS899B") || plateNum.equals("SBS888A")){
+            stationT = "Dhoby Ghaut";
+            stationID.setText("1");
+        } else if (plateNum.equals("SBS895B") || plateNum.equals("SBS896B") || plateNum.equals("SBS889A")){
+            stationT = "Expo";
+            stationID.setText("2");
+        } else if (plateNum.equals("SBS998A") || plateNum.equals("SBS898B")){
+            stationT = "Jurong East";
+            stationID.setText("3");
+        } else if (plateNum.equals("SBS999A") || plateNum.equals("SBS897B")){
+            stationT = "Boon Keng";
+            stationID.setText("4");
+        }
+        station.setText(stationT);
     }
 
     public String getNodes() {
@@ -330,5 +342,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void map(View v) {
+        Intent myIntent = new Intent(this, MapsActivity.class);
+        myIntent.putExtra("num", plateNum);
+        this.startActivity(myIntent);
     }
 }
