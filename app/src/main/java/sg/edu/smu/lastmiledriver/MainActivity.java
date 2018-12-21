@@ -134,9 +134,12 @@ public class MainActivity extends AppCompatActivity {
                                 System.out.println("ttt"+toPrint);
                                 int first = toPrint.indexOf("duration");
                                 int second = toPrint.indexOf("mins");
-                                System.out.println("qqq"+first+"    "+second);
-                                //time = toPrint.substring(first + 14, second);
-                                ti.setText(time);
+                                System.out.println("qqq"+first+"   "+second);
+                                if(first!=-1 && second!=-1) {
+                                    time = toPrint.substring(first + 41, second);
+                                    System.out.println("qqq   "+time);
+                                }
+                                ti.setText(time + "mins");
                             }
                         }, toParse, toFindLat+","+toFindLong).execute("Get time");
                     }
