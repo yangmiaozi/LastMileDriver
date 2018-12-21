@@ -3,6 +3,7 @@ package sg.edu.smu.lastmiledriver;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -11,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -49,6 +52,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.client.StompClient;
 
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView pn;
     private TextView node;
     private TextView con;
+    private TextView ti;
     private Button button;
     private Location location;
     private String TAG = null;
@@ -76,6 +82,13 @@ public class MainActivity extends AppCompatActivity {
     private int stationId;
     private String stationT = "";
     final Handler handler = new Handler();
+    private String time = "";
+    private Object[] nodes;
+    private int numOfNode;
+    private String toFindLong;
+    private String toFindLat;
+    private SharedPreferences myPrefs = null;
+    private SharedPreferences.Editor editor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,19 +103,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mStompClient = Stomp.over(WebSocket.class, "ws://35.247.175.250:8080/last-mile-app/gs-guide-websocket/websocket");
         stationID = findViewById(R.id.stationID);
         button = findViewById(R.id.button);
         status = findViewById(R.id.status);
         node = findViewById(R.id.node);
         con = findViewById(R.id.contacts);
         station = findViewById(R.id.station);
-
+        ti = findViewById(R.id.time);
         pn = findViewById(R.id.platenum);
         pn.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 plateNum = "" + pn.getText();
                 setSth(plateNum);
+                getNodes();
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -126,7 +139,11 @@ public class MainActivity extends AppCompatActivity {
         status.setText("Waiting at station");
         button.setVisibility(View.INVISIBLE);
 
-        getNodes();
+        //myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+        //editor = myPrefs.edit();
+        //editor.putString("MEM1", userName);
+        //editor.commit();
+        //String username = myPrefs.getString("MEM1","");
     }
 
     public void setSth(String plateNum){
@@ -148,8 +165,9 @@ public class MainActivity extends AppCompatActivity {
 
     public String getNodes() {
         Gson gson = new Gson();
-
+        mStompClient = Stomp.over(WebSocket.class, "ws://35.247.175.250:8080/last-mile-app/gs-guide-websocket/websocket");
         mStompClient.connect();
+
         mStompClient.topic("/topic/dispatch").subscribe(message -> {
             JSONArray jsonArr = null;
             ArrayList<Map> mapList = new ArrayList<Map>();
@@ -167,15 +185,16 @@ public class MainActivity extends AppCompatActivity {
                     map = (Map<String,Object>) gson.fromJson(jsonObj.toString(), map.getClass());
                     capacity = Double.parseDouble(""+map.get("capacity"));
                     numOfOnBoard = Double.parseDouble(""+map.get("numOfOnboard"));
-                    toCheck = ""+map.get("plateNum");
+                    toCheck = "" + map.get("plateNum");
                     Object contact = map.get("assignedPassengers");
                     contacts = (LinkedTreeMap) contact;
 
                     if (toCheck.equals(plateNum)) {
-                        Object[] nodes = contacts.keySet().toArray();
+                        nodes = contacts.keySet().toArray();
                         String show = "";
                         String conShow = "";
-                        for (int j = 0; j < nodes.length; j++) {
+                        numOfNode = nodes.length;
+                        for (int j = 0; j < numOfNode; j++) {
                             Object n = nodes[j];
                             ArrayList<Double> al = (ArrayList)contacts.get(n);
 
@@ -197,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                                 conShow += " , ";
                             }
                         }
+                        System.out.println(show+conShow);
                         node.setText(show);
                         con.setText(conShow);
                     }
@@ -206,6 +226,79 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     mapList.add(map);
+
+                    GetLongAndLat gtl = (GetLongAndLat) new GetLongAndLat( new AsyncResponse() {
+                        @Override
+                        public void processFinish(String toFind) {
+                            int lo = toFind.indexOf("longitude");
+                            int next = toFind.indexOf("latitude");
+                            int next2 = toFind.indexOf("stationID");
+
+                            toFindLong = "" + toFind.substring(lo + 11, next - 2);
+                            toFindLat = "" + toFind.substring(next + 10, next2 - 2);
+
+                            GetTime gt = (GetTime) new GetTime( new AsyncResponse() {
+                                @Override
+                                public void processFinish(String toPrint) {
+                                    System.out.println("ttt"+toPrint);
+                                    int first = toPrint.indexOf("duration");
+                                    int second = toPrint.indexOf("mins");
+                                    time = toPrint.substring(first + 14, second);
+                                    ti.setText(time);
+                                }
+                            }, longi+","+lati, (toFindLong+","+toFindLat)).execute("Get time");
+                        }
+                    }, nodes[0].toString()).execute();
+
+                    if (numOfNode > 1) {
+                        GetLongAndLat gtl1 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
+                            @Override
+                            public void processFinish(String toFind) {
+                                int lo = toFind.indexOf("longitude");
+                                int next = toFind.indexOf("latitude");
+                                int next2 = toFind.indexOf("stationID");
+
+                                toFindLong = "" + toFind.substring(lo + 11, next - 2);
+                                toFindLat = "" + toFind.substring(next + 10, next2 - 2);
+
+                                GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
+                                    @Override
+                                    public void processFinish(String toPrint) {
+                                        System.out.println("ttt" + toPrint);
+                                        int first = toPrint.indexOf("duration");
+                                        int second = toPrint.indexOf("mins");
+                                        time = toPrint.substring(first + 14, second);
+                                        ti.setText(time);
+                                    }
+                                }, longi + "," + lati, (toFindLong + "," + toFindLat)).execute("Get time");
+                            }
+                        }, nodes[1].toString()).execute();
+                    }
+
+                    if (numOfNode > 2) {
+                        GetLongAndLat gtl2 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
+                            @Override
+                            public void processFinish(String toFind) {
+                                int lo = toFind.indexOf("longitude");
+                                int next = toFind.indexOf("latitude");
+                                int next2 = toFind.indexOf("stationID");
+
+                                toFindLong = "" + toFind.substring(lo + 11, next - 2);
+                                toFindLat = "" + toFind.substring(next + 10, next2 - 2);
+
+                                GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
+                                    @Override
+                                    public void processFinish(String toPrint) {
+                                        System.out.println("ttt" + toPrint);
+                                        int first = toPrint.indexOf("duration");
+                                        int second = toPrint.indexOf("mins");
+                                        time = toPrint.substring(first + 14, second);
+                                        ti.setText(time);
+                                    }
+                                }, longi + "," + lati, (toFindLong + "," + toFindLat)).execute("Get time");
+                            }
+                        }, nodes[2].toString()).execute();
+                    }
                 }
 
                 if (boo) {
@@ -220,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
                     });
 
                     String start = "dispatch?plateNum=" + plateNum;
+
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -227,6 +321,10 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void processFinish(String toPrint) {
                                     status.setText("Driving");
+
+                                    for (int a = 0; a < numOfNode-1; a++){
+                                        button.setText("Go to next node");
+                                    }
                                     button.setText("Back to Station");
 
                                     changeStatus();
@@ -238,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         });
 
         mStompClient.lifecycle().subscribe(lifecycleEvent -> {
@@ -337,11 +434,11 @@ public class MainActivity extends AppCompatActivity {
                         button.setVisibility(View.INVISIBLE);
                         node.setText("");
                         con.setText("");
+                        ti.setText("");
                     }
                 }, back).execute("Trip finished");
             }
         });
-
     }
 
     public void map(View v) {
