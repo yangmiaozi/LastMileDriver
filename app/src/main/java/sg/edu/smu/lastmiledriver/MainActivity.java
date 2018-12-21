@@ -144,6 +144,31 @@ public class MainActivity extends AppCompatActivity {
         //editor.putString("MEM1", userName);
         //editor.commit();
         //String username = myPrefs.getString("MEM1","");
+
+        GetLongAndLat gtl = (GetLongAndLat) new GetLongAndLat( new AsyncResponse() {
+            @Override
+            public void processFinish(String toFind) {
+                int lo = toFind.indexOf("longitude");
+                int next = toFind.indexOf("latitude");
+                int next2 = toFind.indexOf("stationID");
+
+                toFindLong = "" + toFind.substring(lo + 11, next - 2);
+                toFindLat = "" + toFind.substring(next + 10, next2 - 2);
+                System.out.println("eee" + toFindLat+toFindLong);
+
+                GetTime gt = (GetTime) new GetTime( new AsyncResponse() {
+                    @Override
+                    public void processFinish(String toPrint) {
+                        System.out.println("ttt"+toPrint);
+                        int first = toPrint.indexOf("duration");
+                        int second = toPrint.indexOf("mins");
+                        System.out.println("qqq"+first+"    "+second);
+                        //time = toPrint.substring(first + 14, second);
+                        ti.setText(time);
+                    }
+                }, "1.299044,103.845699", toFindLat+","+toFindLong).execute("Get time");
+            }
+        }, "2").execute();
     }
 
     public void setSth(String plateNum){
@@ -227,28 +252,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     mapList.add(map);
 
-                    GetLongAndLat gtl = (GetLongAndLat) new GetLongAndLat( new AsyncResponse() {
-                        @Override
-                        public void processFinish(String toFind) {
-                            int lo = toFind.indexOf("longitude");
-                            int next = toFind.indexOf("latitude");
-                            int next2 = toFind.indexOf("stationID");
 
-                            toFindLong = "" + toFind.substring(lo + 11, next - 2);
-                            toFindLat = "" + toFind.substring(next + 10, next2 - 2);
-
-                            GetTime gt = (GetTime) new GetTime( new AsyncResponse() {
-                                @Override
-                                public void processFinish(String toPrint) {
-                                    System.out.println("ttt"+toPrint);
-                                    int first = toPrint.indexOf("duration");
-                                    int second = toPrint.indexOf("mins");
-                                    time = toPrint.substring(first + 14, second);
-                                    ti.setText(time);
-                                }
-                            }, longi+","+lati, (toFindLong+","+toFindLat)).execute("Get time");
-                        }
-                    }, nodes[0].toString()).execute();
 
                     if (numOfNode > 1) {
                         GetLongAndLat gtl1 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
@@ -377,13 +381,6 @@ public class MainActivity extends AppCompatActivity {
                         provider = locationManager.getBestProvider(criteria, true);
 
                         if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            // TODO: Consider calling
-                            //    ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                            //                                          int[] grantResults)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
                             return;
                         }
                         location = locationManager.getLastKnownLocation(provider);
@@ -400,8 +397,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onLocationChanged (Location location){
                                 lati = location.getLatitude();
                                 longi = location.getLongitude();
-                                Log.e("android_lat", String.valueOf(lati));
-                                Log.e("android_lon", String.valueOf(longi));
+                                //Log.e("android_lat", String.valueOf(lati));
+                                //Log.e("android_lon", String.valueOf(longi));
                                 String loc = "update?plateNum=" + plateNum + "&longitude=" + longi + "&latitude=" + lati;
                                 UpdateLoc bd = (UpdateLoc) new UpdateLoc( new AsyncResponse() {
                                     @Override

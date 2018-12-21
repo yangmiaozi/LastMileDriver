@@ -19,9 +19,9 @@ import java.net.URLEncoder;
  */
 
 public class GetTime extends AsyncTask<String,Void,String> {
-    private String origin; //1.299044,103.845699
+    private String origin;
     private String desti;
-    private String key = "AIzaSyB5auytJJkY8MVneva2LeG5FRGOOPP";
+    private String key = "AIzaSyCD6VFWbzE4Sm9k_2SPl4R9twU1GpLlYUg";
 
     public AsyncResponse delegate = null;
 
