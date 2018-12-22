@@ -14,7 +14,7 @@
         android:layout_marginBottom="124dp"
         android:layout_marginStart="44dp"
         android:layout_marginTop="8dp"
-        android:text="Estimated time to next node:"
+        android:text="Estimated time of this trip:"
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
