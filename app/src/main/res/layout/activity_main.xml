@@ -97,11 +97,11 @@
     <TextView
         android:id="@+id/node"
         android:layout_width="117dp"
-        android:layout_height="23dp"
-        android:layout_marginBottom="108dp"
-        android:layout_marginEnd="8dp"
+        android:layout_height="26dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="108dp"
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -150,7 +150,6 @@
         android:layout_marginTop="36dp"
         android:text="Update Status"
         android:textSize="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/button3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -167,7 +166,6 @@
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button3"
         tools:ignore="UnknownId" />
 
     <TextView
