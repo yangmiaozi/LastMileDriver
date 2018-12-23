@@ -218,6 +218,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(show+conShow);
                         node.setText(show);
                         con.setText(conShow);
+                    }else{
+                        node.setText("");
+                        con.setText("");
+                        stationID.setText("");
+                        ti.setText("");
+                        station.setText("");
                     }
 
                     if (numOfOnBoard >= capacity){
@@ -238,108 +244,111 @@ public class MainActivity extends AppCompatActivity {
                             button.setText("Your car is ready to dispatch");
                         }
                     });
+/*
+                    try {
+                        GetLongAndLat gtl = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
+                            @Override
+                            public void processFinish(String toFind) {
+                                int lo = toFind.indexOf("longitude");
+                                int next = toFind.indexOf("latitude");
+                                int next2 = toFind.indexOf("stationID");
+                                System.out.println("eee" + toFind);
+                                toFindLong1 = "" + toFind.substring(lo + 11, next - 2);
+                                toFindLat1 = "" + toFind.substring(next + 10, next2 - 2);
+                                System.out.println("eee" + toFindLat1 + toFindLong1);
+
+                                GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
+                                    @Override
+                                    public void processFinish(String toPrint) {
+                                        System.out.println("eee" + toPrint);
+                                        int first = toPrint.indexOf("duration");
+                                        int second = toPrint.indexOf("mins");
+                                        System.out.println("eee" + first + "    " + second);
+                                        time1 = toPrint.substring(first + 14, second);
+                                    }
+                                }, toParse, toFindLat1 + "," + toFindLong1).execute("Get time");
+                            }
+                        }, nodes[0].toString()).execute();
+
+                        if (numOfNode > 1) {
+                            GetLongAndLat gtl1 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
+                                @Override
+                                public void processFinish(String toFind) {
+                                    int lo = toFind.indexOf("longitude");
+                                    int next = toFind.indexOf("latitude");
+                                    int next2 = toFind.indexOf("stationID");
+
+                                    toFindLong2 = "" + toFind.substring(lo + 11, next - 2);
+                                    toFindLat2 = "" + toFind.substring(next + 10, next2 - 2);
+                                    System.out.println("eee" + toFindLat2 + toFindLong2);
+
+                                    GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
+                                        @Override
+                                        public void processFinish(String toPrint) {
+                                            System.out.println("eee" + toPrint);
+                                            int first = toPrint.indexOf("duration");
+                                            int second = toPrint.indexOf("mins");
+                                            System.out.println("eee" + first + "    " + second);
+                                            time2 = toPrint.substring(first + 14, second);
+                                        }
+                                    }, toFindLat1 + "," + toFindLong1, toFindLat2 + "," + toFindLong2).execute("Get time");
+                                }
+                            }, nodes[1].toString()).execute();
+                        }
+
+                        if (numOfNode > 2) {
+                            GetLongAndLat gtl2 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
+                                @Override
+                                public void processFinish(String toFind) {
+                                    int lo = toFind.indexOf("longitude");
+                                    int next = toFind.indexOf("latitude");
+                                    int next2 = toFind.indexOf("stationID");
+
+                                    toFindLong3 = "" + toFind.substring(lo + 11, next - 2);
+                                    toFindLat3 = "" + toFind.substring(next + 10, next2 - 2);
+                                    System.out.println("eee" + toFindLat3 + toFindLong3);
+
+                                    GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
+                                        @Override
+                                        public void processFinish(String toPrint) {
+                                            System.out.println("ttt" + toPrint);
+                                            int first = toPrint.indexOf("duration");
+                                            int second = toPrint.indexOf("mins");
+                                            System.out.println("qqq" + first + "    " + second);
+                                            time3 = toPrint.substring(first + 14, second);
+                                        }
+                                    }, toFindLat2 + "," + toFindLong2, toFindLat3 + "," + toFindLong3).execute("Get time");
+                                }
+                            }, nodes[2].toString()).execute();
+                        }
+
+                        if ((Integer.parseInt(time1 + time2 + time3)) == 0){
+                            ti.setText("" + (Math.random()* 10 + 5)*3);
+                        } else {
+                            ti.setText(time1 + time2 + time3);
+                        }
+                    }catch(Exception e){
+                        e.printStackTrace();
+                        ti.setText("" + (Math.random()* 10 + 5)*3);
+                    }
+*/
 
                     String start = "dispatch?plateNum=" + plateNum;
-
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             PerformBackgroundTask bd = (PerformBackgroundTask) new PerformBackgroundTask(new AsyncResponse() {
                                 @Override
                                 public void processFinish(String toPrint) {
-                                    /*
-                                    try {
-                                        GetLongAndLat gtl = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
-                                            @Override
-                                            public void processFinish(String toFind) {
-                                                int lo = toFind.indexOf("longitude");
-                                                int next = toFind.indexOf("latitude");
-                                                int next2 = toFind.indexOf("stationID");
-                                                System.out.println("eee" + toFind);
-                                                toFindLong1 = "" + toFind.substring(lo + 11, next - 2);
-                                                toFindLat1 = "" + toFind.substring(next + 10, next2 - 2);
-                                                System.out.println("eee" + toFindLat1 + toFindLong1);
-
-                                                GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
-                                                    @Override
-                                                    public void processFinish(String toPrint) {
-                                                        System.out.println("eee" + toPrint);
-                                                        int first = toPrint.indexOf("duration");
-                                                        int second = toPrint.indexOf("mins");
-                                                        System.out.println("eee" + first + "    " + second);
-                                                        time1 = toPrint.substring(first + 14, second);
-                                                    }
-                                                }, toParse, toFindLat1 + "," + toFindLong1).execute("Get time");
-                                            }
-                                        }, nodes[0].toString()).execute();
-
-                                        if (numOfNode > 1) {
-                                            GetLongAndLat gtl1 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
-                                                @Override
-                                                public void processFinish(String toFind) {
-                                                    int lo = toFind.indexOf("longitude");
-                                                    int next = toFind.indexOf("latitude");
-                                                    int next2 = toFind.indexOf("stationID");
-
-                                                    toFindLong2 = "" + toFind.substring(lo + 11, next - 2);
-                                                    toFindLat2 = "" + toFind.substring(next + 10, next2 - 2);
-                                                    System.out.println("eee" + toFindLat2 + toFindLong2);
-
-                                                    GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
-                                                        @Override
-                                                        public void processFinish(String toPrint) {
-                                                            System.out.println("eee" + toPrint);
-                                                            int first = toPrint.indexOf("duration");
-                                                            int second = toPrint.indexOf("mins");
-                                                            System.out.println("eee" + first + "    " + second);
-                                                            time2 = toPrint.substring(first + 14, second);
-                                                        }
-                                                    }, toFindLat1 + "," + toFindLong1, toFindLat2 + "," + toFindLong2).execute("Get time");
-                                                }
-                                            }, nodes[1].toString()).execute();
-                                        }
-
-                                        if (numOfNode > 2) {
-                                            GetLongAndLat gtl2 = (GetLongAndLat) new GetLongAndLat(new AsyncResponse() {
-                                                @Override
-                                                public void processFinish(String toFind) {
-                                                    int lo = toFind.indexOf("longitude");
-                                                    int next = toFind.indexOf("latitude");
-                                                    int next2 = toFind.indexOf("stationID");
-
-                                                    toFindLong3 = "" + toFind.substring(lo + 11, next - 2);
-                                                    toFindLat3 = "" + toFind.substring(next + 10, next2 - 2);
-                                                    System.out.println("eee" + toFindLat3 + toFindLong3);
-
-                                                    GetTime gt = (GetTime) new GetTime(new AsyncResponse() {
-                                                        @Override
-                                                        public void processFinish(String toPrint) {
-                                                            System.out.println("ttt" + toPrint);
-                                                            int first = toPrint.indexOf("duration");
-                                                            int second = toPrint.indexOf("mins");
-                                                            System.out.println("qqq" + first + "    " + second);
-                                                            time3 = toPrint.substring(first + 14, second);
-                                                        }
-                                                    }, toFindLat2 + "," + toFindLong2, toFindLat3 + "," + toFindLong3).execute("Get time");
-                                                }
-                                            }, nodes[2].toString()).execute();
-                                        }
-
-                                        if ((Integer.parseInt(time1 + time2 + time3)) == 0){
-                                            ti.setText("" + (int)(Math.random()* 10 + 5)*3 + "mins");
-                                        } else {
-                                            ti.setText(time1 + time2 + time3+ "mins");
-                                        }
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-                                        ti.setText("" + (int)(Math.random()* 10 + 5)*3+ "mins");
-                                    }*/
-                                    int nummm = (int)(Math.random()* 10 + 5)*3;
-                                    ti.setText("" + nummm + "mins");
-
                                     status.setText("Driving");
                                     button.setText("Back to Station");
-
+                                    if (numOfNode > 1) {
+                                        ti.setText("" + (int) (Math.random() * 10 + 5) * 2 + "mins");
+                                    }if (numOfNode > 2) {
+                                        ti.setText("" + (int) (Math.random() * 10 + 5) * 3 + "mins");
+                                    }else{
+                                        ti.setText("" + (int) (Math.random() * 10 + 5) + "mins");
+                                    }
                                     changeStatus();
                                 }
                             }, start).execute("Dispatch");
@@ -406,8 +415,6 @@ public class MainActivity extends AppCompatActivity {
                             public void onLocationChanged (Location location){
                                 lati = location.getLatitude();
                                 longi = location.getLongitude();
-                                //Log.e("android_lat", String.valueOf(lati));
-                                //Log.e("android_lon", String.valueOf(longi));
                                 String loc = "update?plateNum=" + plateNum + "&longitude=" + longi + "&latitude=" + lati;
                                 UpdateLoc bd = (UpdateLoc) new UpdateLoc( new AsyncResponse() {
                                     @Override
@@ -427,7 +434,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void changeStatus() {
-        mStompClient.connect();
+        if (!mStompClient.isConnected()) {
+            //mStompClient.connect();
+        }
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
