@@ -22,8 +22,6 @@ import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.view.ViewParent;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import com.google.gson.Gson;
@@ -225,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
                         ti.setText("");
                         station.setText("");
                         button.setVisibility(View.INVISIBLE);
-
                     }
 
                     if (numOfOnBoard >= capacity){
@@ -246,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
                             button.setText("Your car is ready to dispatch");
                         }
                     });
-
 
                     String start = "dispatch?plateNum=" + plateNum;
                     button.setOnClickListener(new View.OnClickListener() {
@@ -429,6 +425,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }catch(Exception e){
             e.printStackTrace();
+            mStompClient.connect();
+
             ti.setText("" + (int)(Math.random()* 10 + 5)*3 + "mins");
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -442,13 +440,13 @@ public class MainActivity extends AppCompatActivity {
                             node.setText("");
                             con.setText("");
                             ti.setText("");
-                            mStompClient.connect();
 
                         }
                     }, back).execute("Trip finished");
                 }
             });
         }
+        mStompClient.connect();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -462,7 +460,6 @@ public class MainActivity extends AppCompatActivity {
                         node.setText("");
                         con.setText("");
                         ti.setText("");
-                        mStompClient.connect();
 
                     }
                 }, back).execute("Trip finished");
