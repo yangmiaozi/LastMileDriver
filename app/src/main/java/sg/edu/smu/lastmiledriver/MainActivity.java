@@ -224,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
                         stationID.setText("");
                         ti.setText("");
                         station.setText("");
+                        button.setVisibility(View.INVISIBLE);
+
                     }
 
                     if (numOfOnBoard >= capacity){
