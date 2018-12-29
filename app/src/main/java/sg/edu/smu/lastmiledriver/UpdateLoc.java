@@ -31,7 +31,7 @@ public class UpdateLoc extends AsyncTask<String,Void,String> {
 
     @Override
     protected String doInBackground(String... params) {
-        String result_url = "http://35.247.175.250:8080/last-mile-app/drivers/" + url;
+        String result_url = "http://35.240.213.37:8080/last-mile-app/drivers/" + url;
         String post_data;
         try {
             URL url = new URL(result_url);

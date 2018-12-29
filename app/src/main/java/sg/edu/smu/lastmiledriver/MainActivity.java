@@ -112,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 plateNum = "" + pn.getText();
                 setSth(plateNum);
-                getNodes();
+                //getNodes();
+                getNode();
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -142,24 +143,225 @@ public class MainActivity extends AppCompatActivity {
             stationT = "Dhoby Ghaut";
             stationID.setText("1");
             toParse = "1.299044,103.845699";
+            station.setText(stationT);
 
         } else if (plateNum.equals("SBS895B") || plateNum.equals("SBS896B") || plateNum.equals("SBS889A")){
             stationT = "Expo";
             stationID.setText("2");
             toParse = "1.334218,103.961567";
+            station.setText(stationT);
 
         } else if (plateNum.equals("SBS998A") || plateNum.equals("SBS898B")){
             stationT = "Jurong East";
             stationID.setText("3");
             toParse = "1.333184,103.742134";
+            station.setText(stationT);
 
         } else if (plateNum.equals("SBS999A") || plateNum.equals("SBS897B")){
             stationT = "Boon Keng";
             stationID.setText("4");
             toParse = "1.319364,103.862049";
+            station.setText(stationT);
 
         }
-        station.setText(stationT);
+    }
+
+    public String getNode() {
+        final boolean[] boo = {false};
+
+        final Handler handler = new Handler();
+        final Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            public void run() { handler.post(new Runnable() {
+                public void run() {
+                    GetDispatch bd = (GetDispatch) new GetDispatch(new AsyncResponse() {
+                        @Override
+                        public void processFinish(String dispatch) {
+                            Gson gson = new Gson();
+                            JSONArray jsonArr = null;
+                            ArrayList<Map> mapList = new ArrayList<Map>();
+                            double capacity;
+                            double numOfOnBoard;
+                            String toCheck;
+                            LinkedTreeMap<Object, Object> contacts;
+                            try {
+                                jsonArr = new JSONArray(dispatch);
+                                for (int i = 0; i < jsonArr.length(); i++) {
+                                    JSONObject jsonObj = jsonArr.getJSONObject(i);
+
+                                    Map<String, Object> map = new HashMap<String, Object>();
+                                    map = (Map<String, Object>) gson.fromJson(jsonObj.toString(), map.getClass());
+                                    capacity = Double.parseDouble("" + map.get("capacity"));
+                                    numOfOnBoard = Double.parseDouble("" + map.get("numOfOnboard"));
+                                    toCheck = "" + map.get("plateNum");
+                                    Object contact = map.get("assignedPassengers");
+                                    contacts = (LinkedTreeMap) contact;
+
+                                    if (toCheck.equals(plateNum)) {
+                                        nodes = contacts.keySet().toArray();
+                                        String show = "";
+                                        String conShow = "";
+                                        numOfNode = nodes.length;
+                                        for (int j = 0; j < numOfNode; j++) {
+                                            Object n = nodes[j];
+                                            ArrayList<Double> al = (ArrayList) contacts.get(n);
+
+                                            if (j != nodes.length - 1) {
+                                                show += n.toString() + " , ";
+                                            } else {
+                                                show += n.toString();
+                                            }
+
+                                            for (int k = 0; k < al.size(); k++) {
+                                                if (k != al.size() - 1) {
+                                                    conShow += Math.round(al.get(k)) + " , ";
+                                                } else {
+                                                    conShow += Math.round(al.get(k));
+                                                }
+                                            }
+
+                                            if (j != nodes.length - 1) {
+                                                conShow += " , ";
+                                            }
+                                        }
+                                        System.out.println(show + conShow);
+                                        node.setText(show);
+                                        con.setText(conShow);
+                                    }
+                                    if (numOfOnBoard >= capacity) {
+                                        if (toCheck.equals(plateNum)) {
+                                            boo[0] = true;
+                                            timer.cancel();
+                                            if (boo[0]) {
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        button.setVisibility(View.VISIBLE);
+                                                        status.setText("Waiting at station");
+                                                        button.setText("Your car is ready to dispatch");
+                                                    }
+                                                });
+
+                                                String start = "dispatch?plateNum=" + plateNum;
+                                                button.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        PerformBackgroundTask bd = (PerformBackgroundTask) new PerformBackgroundTask(new AsyncResponse() {
+                                                            @Override
+                                                            public void processFinish(String toPrint) {
+                                                                status.setText("Driving");
+                                                                button.setText("Back to Station");
+                                                                if (numOfNode > 1) {
+                                                                    ti.setText("" + (int) (Math.random() * 10 + 5) * 2 + "mins");
+                                                                }
+                                                                if (numOfNode > 2) {
+                                                                    ti.setText("" + (int) (Math.random() * 10 + 5) * 3 + "mins");
+                                                                } else {
+                                                                    ti.setText("" + (int) (Math.random() * 10 + 5) + "mins");
+                                                                }
+                                                                changeStatus();
+                                                            }
+                                                        }, start).execute("Dispatch");
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                    mapList.add(map);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).execute();
+                }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 3000);
+
+        return "dispatch";
+    }
+
+    public void updateLoc() {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            public void run() { handler.post(new Runnable() {
+                public void run() {
+                    try {
+                        LocationManager locationManager;
+                        LocationListener locationListener;
+                        final String contextService = Context.LOCATION_SERVICE;
+                        String provider;
+                        locationManager = (LocationManager) getSystemService(contextService);
+                        Criteria criteria = new Criteria();
+                        criteria.setAccuracy(Criteria.ACCURACY_MEDIUM);
+                        criteria.setAltitudeRequired(false);
+                        criteria.setBearingRequired(false);
+                        criteria.setCostAllowed(true);
+                        criteria.setPowerRequirement(Criteria.POWER_LOW);
+                        provider = locationManager.getBestProvider(criteria, true);
+
+                        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        location = locationManager.getLastKnownLocation(provider);
+                        locationListener = new LocationListener() {
+                            public void onStatusChanged(String provider, int status, Bundle extras){
+                            }
+
+                            public void onProviderEnabled(String provider) {
+                            }
+
+                            public void onProviderDisabled (String provider){
+                            }
+
+                            public void onLocationChanged (Location location){
+                                lati = location.getLatitude();
+                                longi = location.getLongitude();
+                                String loc = "update?plateNum=" + plateNum + "&longitude=" + longi + "&latitude=" + lati;
+                                UpdateLoc bd = (UpdateLoc) new UpdateLoc( new AsyncResponse() {
+                                    @Override
+                                    public void processFinish(String str) {
+                                    }
+                                }, loc).execute("Update location");
+                            }
+                        };
+                        locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }}
+            });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 5000, 5000);
+    }
+
+    public void changeStatus() {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String back = "return?plateNum=" + plateNum;
+                PerformBackgroundTask bd = (PerformBackgroundTask) new PerformBackgroundTask( new AsyncResponse() {
+                    @Override
+                    public void processFinish(String toPrint) {
+                        status.setText("Waiting at station");
+                        button.setVisibility(View.INVISIBLE);
+                        node.setText("");
+                        con.setText("");
+                        ti.setText("");
+                        getNode();
+                    }
+                }, back).execute("Trip finished");
+            }
+        });
+    }
+
+    public void map(View v) {
+        Intent myIntent = new Intent(this, MapsActivity.class);
+        myIntent.putExtra("num", plateNum);
+        this.startActivity(myIntent);
     }
 
     public String getNodes() {
@@ -378,87 +580,4 @@ public class MainActivity extends AppCompatActivity {
         return "dispatch";
     }
 
-    public void updateLoc() {
-        final Handler handler = new Handler();
-        Timer timer = new Timer();
-        TimerTask doAsynchronousTask = new TimerTask() {
-            public void run() { handler.post(new Runnable() {
-                public void run() {
-                    try {
-                        LocationManager locationManager;
-                        LocationListener locationListener;
-                        final String contextService = Context.LOCATION_SERVICE;
-                        String provider;
-                        locationManager = (LocationManager) getSystemService(contextService);
-                        Criteria criteria = new Criteria();
-                        criteria.setAccuracy(Criteria.ACCURACY_MEDIUM);
-                        criteria.setAltitudeRequired(false);
-                        criteria.setBearingRequired(false);
-                        criteria.setCostAllowed(true);
-                        criteria.setPowerRequirement(Criteria.POWER_LOW);
-                        provider = locationManager.getBestProvider(criteria, true);
-
-                        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
-                        location = locationManager.getLastKnownLocation(provider);
-                        locationListener = new LocationListener() {
-                            public void onStatusChanged(String provider, int status, Bundle extras){
-                            }
-
-                            public void onProviderEnabled(String provider) {
-                            }
-
-                            public void onProviderDisabled (String provider){
-                            }
-
-                            public void onLocationChanged (Location location){
-                                lati = location.getLatitude();
-                                longi = location.getLongitude();
-                                String loc = "update?plateNum=" + plateNum + "&longitude=" + longi + "&latitude=" + lati;
-                                UpdateLoc bd = (UpdateLoc) new UpdateLoc( new AsyncResponse() {
-                                    @Override
-                                    public void processFinish(String str) {
-                                    }
-                                }, loc).execute("Update location");
-                            }
-                        };
-                        locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }}
-            });
-            }
-        };
-        timer.schedule(doAsynchronousTask, 5000, 5000);
-    }
-
-    public void changeStatus() {
-        if (!mStompClient.isConnected()) {
-            //mStompClient.connect();
-        }
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String back = "return?plateNum=" + plateNum;
-                PerformBackgroundTask bd = (PerformBackgroundTask) new PerformBackgroundTask( new AsyncResponse() {
-                    @Override
-                    public void processFinish(String toPrint) {
-                        status.setText("Waiting at station");
-                        button.setVisibility(View.INVISIBLE);
-                        node.setText("");
-                        con.setText("");
-                        ti.setText("");
-                    }
-                }, back).execute("Trip finished");
-            }
-        });
-    }
-
-    public void map(View v) {
-        Intent myIntent = new Intent(this, MapsActivity.class);
-        myIntent.putExtra("num", plateNum);
-        this.startActivity(myIntent);
-    }
 }

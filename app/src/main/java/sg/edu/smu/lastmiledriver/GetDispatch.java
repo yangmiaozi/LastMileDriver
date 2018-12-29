@@ -3,35 +3,26 @@ package sg.edu.smu.lastmiledriver;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 /**
- * Created by Miaozi on 18/12/18.
+ * Created by Miaozi on 29/12/18.
  */
 
-public class GetLongAndLat extends AsyncTask<String,Void,String> {
-    private String id;
+public class GetDispatch extends AsyncTask<String,Void,String> {
 
     public AsyncResponse delegate = null;
 
-    public GetLongAndLat(AsyncResponse delegate, String id) {
+    public GetDispatch(AsyncResponse delegate) {
         this.delegate = delegate;
-        this.id = id;
     }
 
     @Override
     protected String doInBackground(String... params) {
-        String result_url = "http://35.240.213.37:8080/last-mile-app/nodes?id=" + id;
+        String result_url = "http://35.240.213.37:8080/last-mile-app/drivers/dispatch";
         String result;
         String inputLine;
         try {

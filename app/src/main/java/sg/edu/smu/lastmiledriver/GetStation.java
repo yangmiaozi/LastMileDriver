@@ -24,7 +24,7 @@ public class GetStation extends AsyncTask<String,Void,String> {
 
     @Override
     protected String doInBackground(String... params) {
-        String station_url = "http://35.247.175.250:8080/last-mile-app/stations/all/";
+        String station_url = "http://35.240.213.37:8080/last-mile-app/stations/all/";
         String result;
         String inputLine;
         try {
